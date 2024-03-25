@@ -14,48 +14,53 @@ const OTPForm = ({ onBack }) => {
   const [otp, setOtp] = useState("");
   const [resendTimer, setResendTimer] = useState(60);
   const { authToken, updateAuthToken } = useAuth();
-  const {
-    phoneNumber,
-
-    email,
-
-    pass,
-  } = useContext(MyContext);
+  const { phoneNumber, setPass, pass, email, resetPass } =
+    useContext(MyContext);
   const [loading1, setLoading1] = useState(false);
 
-  const signUpOtpEndpoint = import.meta.env
-    .VITE_REACT_APP_RENDER_API_SIGN_UP_OTP_ENDPOINT;
-  const signUpOtpResendEndpoint = import.meta.env
-    .VITE_REACT_APP_RENDER_API_SIGN_UP_RESEND_OTP_ENDPOINT;
+  const forgetPasswordOtpEndpoint = import.meta.env
+    .VITE_REACT_APP_RENDER_API_FORGOT_PASSWORD_OTP_ENDPOINT;
+  const forgetPasswordResendOtp = import.meta.env
+    .VITE_REACT_APP_RENDER_API_FORGOT_PASSWORD_ENDPOINT;
+
+  const forgetPasswordChangeEndpoint = import.meta.env
+    .VITE_REACT_APP_RENDER_API_FORGOT_PASSWORD_CHANGE_PASSWORD_ENDPOINT;
+
   const signInEndpoint = import.meta.env
     .VITE_REACT_APP_RENDER_API_SIGN_IN_ENDPOINT;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log(email, otp);
+    console.log(forgetPasswordOtpEndpoint);
     if (email == "" || otp == "") {
-      toast.error("enter user detail");
+      toast.error("enter user detail submitted verification");
       return;
     }
 
     setLoading1(true);
 
     try {
-      const response = await axios.post(signUpOtpEndpoint, {
+      const response = await axios.post(forgetPasswordOtpEndpoint, {
         email: email,
         otp: otp,
       });
 
+      const receivedToken = response.data.data.token;
+
+      updateAuthToken(receivedToken);
       console.log(authToken);
+      console.log(forgetPasswordOtpEndpoint);
       if (response.data.success) {
         toast.success("Email Verified");
-        handleSignIn(event);
+        changePassword(event);
         setLoading1(false);
       }
     } catch (error) {
       if (error.response && error.response.data) {
         const errorMessage = error.response.data.message || "An error occurred";
         toast.error(errorMessage);
-        console.error("Server responded with an error:", errorMessage);
+        console.error("Server responded with an error:", error);
       } else if (error.request) {
         toast.error("No response received. Network error occurred.");
         console.error("No response received. Network error occurred.");
@@ -87,14 +92,14 @@ const OTPForm = ({ onBack }) => {
     setResendTimer(60);
     console.log(email, OtpInput);
     if (email == "") {
-      toast.error("enter user detail");
+      toast.error("enter user detail Resent");
       return;
     }
 
     setLoading1(true);
 
     try {
-      const response = await axios.post(signUpOtpResendEndpoint, {
+      const response = await axios.post(forgetPasswordResendOtp, {
         email: email,
       });
       if (response.data.success) {
@@ -119,13 +124,62 @@ const OTPForm = ({ onBack }) => {
     }
   };
 
+  const changePassword = async (event) => {
+    event.preventDefault();
+
+    console.log(email, OtpInput);
+    if (email == "" || otp == "") {
+      toast.error("enter user detail change Password");
+      return;
+    }
+
+    setLoading1(true);
+
+    try {
+      const headers = {
+        "verify-token": `${authToken}`,
+      };
+      const response = await axios.post(
+        forgetPasswordChangeEndpoint,
+        {
+          email: email,
+          newPassword: resetPass,
+        },
+        {
+          withCredentials: false,
+          headers: headers,
+        }
+      );
+      if (response.data.success) {
+        toast.success("Password Changed Sucessfully!!");
+        setPass(resetPass);
+        handleSignIn(event);
+        setLoading1(false);
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorMessage = error.response.data.message || "An error occurred";
+        toast.error(errorMessage);
+        console.error("Server responded with an error:", errorMessage);
+      } else if (error.request) {
+        toast.error("No response received. Network error occurred.");
+        console.error("No response received. Network error occurred.");
+      } else {
+        toast.error("Error setting up the request.");
+        console.error("Error setting up the request.", error);
+      }
+    } finally {
+      setLoading1(false);
+    }
+  };
+
   const handleSignIn = async (event) => {
     event.preventDefault();
 
-    if (email == "" || phoneNumber == "") {
+    if (email == "" && phoneNumber == "") {
       toast.error("enter user detail");
       return;
-    } else if (pass == "") {
+    } else if (resetPass == "") {
       toast.error("enter password");
       return;
     }
@@ -138,7 +192,7 @@ const OTPForm = ({ onBack }) => {
         signInEndpoint,
         {
           email: email,
-          password: pass,
+          password: resetPass,
         },
         {
           withCredentials: false,

@@ -6,7 +6,8 @@ const MyProvider = ({ children }) => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [pass, setPass] = useState("");
-  const [authToken, setAuthToken] = useState("");
+  const [resetPass, setResetPass] = useState("");
+
   const contextValue = {
     phoneNumber,
     setPhoneNumber,
@@ -16,7 +17,8 @@ const MyProvider = ({ children }) => {
     setName,
     pass,
     setPass,
-    
+    resetPass,
+    setResetPass,
   };
 
   return (

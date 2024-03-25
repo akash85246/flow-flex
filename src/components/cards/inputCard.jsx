@@ -16,7 +16,7 @@ function InputCard({
   toggleSignInOption,
   confirm,
   isEmail,
-  required, 
+  required,
   setIsEmail,
   errorLabel,
   setValue,
@@ -30,7 +30,7 @@ function InputCard({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showConfirmWrongEye, setShowConfirmWrongEye] = useState(false);
   const [confirmValue, setConfirmValue] = useState("");
-  
+
   const handleChange = (event) => {
     const inputValue = event.target.value;
 
@@ -75,13 +75,7 @@ function InputCard({
         }
       }
     }
-  }, [
-    confirmValue,
-    value,
-    confirmPasswordRegex,
-    showWrongEye,
-    inputValue,
-  ]);
+  }, [confirmValue, value, confirmPasswordRegex, showWrongEye, inputValue]);
 
   const handleToggleSignIn = (event) => {
     setIsEmail(!isEmail);
@@ -102,7 +96,7 @@ function InputCard({
               className="text-blue-300 cursor-pointer hover:text-blue-50"
               onClick={(event) => handleToggleSignIn(event)}
             >
-              {isEmail ? "Use phone number" : "Use using email"}
+              {isEmail ? "Use phone number" : "Use email address"}
             </p>
           </label>
         )}

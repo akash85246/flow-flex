@@ -7,28 +7,35 @@ import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { useAuth } from "../../utils/authContext/authContext";
 import axios from "axios";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import MyContext from "../../utils/context/MyContext";
+import OTPForm from "./otp"
 
-export default function SignIn() {
+export default function ForgetPassword() {
   const { authToken, updateAuthToken } = useAuth();
-  const { phoneNumber, setPhoneNumber, email, setEmail, pass, setPass } =
-    useContext(MyContext);
+  const {
+    phoneNumber,
+    setPhoneNumber,
+    email,
+    setEmail,
+    resetPass,
+    setResetPass,
+  } = useContext(MyContext);
   const [isEmail, setIsEmail] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading1, setLoading1] = useState(false);
-  const [loading2, setLoading2] = useState(false);
-
+  
+  const [step, setStep] = useState("forgotPassword");
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^[0-9]{10}$/;
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
-  const signInEndpoint = import.meta.env
-    .VITE_REACT_APP_RENDER_API_SIGN_IN_ENDPOINT;
 
+  const forgetEndPoint = import.meta.env
+    .VITE_REACT_APP_RENDER_API_FORGOT_PASSWORD_ENDPOINT;
   useEffect(() => {
     initParticlesEngine(async (engine) => {
       await loadSlim(engine);
@@ -114,49 +121,37 @@ export default function SignIn() {
     }
   };
 
-  const handlePasswordChange = (event) => {
-    if (event && event.target) {
-      setPassword(event.target.value);
-    }
-  };
-
   const toggleSignInOption = () => {
     setIsEmail(!isEmail);
+  };
+  const onBack = () => {
+    setStep("login");
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log(email, phoneNumber, resetPass);
     if (isEmail) {
-      if (email == "" || phoneNumber == "") {
+      if (email == "" && phoneNumber == "") {
         toast.error("enter user detail");
         return;
-      } else if (pass == "") {
+      } else if (resetPass == "") {
         toast.error("enter password");
         return;
       }
     }
 
     setLoading1(true);
-    console.log(signInEndpoint);
 
     try {
-      const response = await axios.post(
-        signInEndpoint,
-        {
-          email: email,
-          password: pass,
-        },
-        {
-          withCredentials: false,
-        }
-      );
+      const response = await axios.post(forgetEndPoint, {
+        email: email,
+       
+      });
 
-      const receivedToken = response.data.data.token;
-
-      updateAuthToken(receivedToken);
-      console.log(authToken);
       if (response.data.success) {
         toast.success("Successfully logged in!");
+        setStep("otp");
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -180,11 +175,6 @@ export default function SignIn() {
     }
   };
 
-  const handleGoogleSignIn = (event) => {
-    event.preventDefault();
-    // Handle Google sign-in here
-  };
-
   return (
     <div className="relative h-screen">
       <Particles
@@ -194,84 +184,84 @@ export default function SignIn() {
       />
 
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 flex">
-        {/* <div className="  w-52 h-auto bg-slate-400 "></div> */}
         <div className="bg-black bg-opacity-80 rounded-lg shadow-md p-10 w-screen h-screen p-auto flex justify-center items-center flex-col m-auto md:w-full md:h-full">
-          <form className="space-y-4 " onSubmit={handleSubmit}>
-            <h1 className="text-white text-2xl font-bold">Account Login</h1>
-            <p className="text-white">
-              If you are already a member you can login with your{" "}
-              {isEmail ? "email address" : "phone number"}.
-            </p>
+          {step == "forgotPassword" ? (
+            <form className="space-y-4 " onSubmit={handleSubmit}>
+              <h1 className="text-white text-2xl font-bold">Forgot Password</h1>
+              <p className="text-white">
+                A text with 6-digit code has to been sent to your entered{" "}
+                {isEmail ? "email address" : "phone number"}.
+              </p>
 
-            <InputCard
-              type={isEmail ? "email" : "tel"}
-              label={isEmail ? "Email" : "Phone Number"}
-              id={isEmail ? "username-input" : "phone-input"}
-              setPhoneNumber={!isEmail && setPhoneNumber}
-              setValue={isEmail && setEmail}
-              value={username}
-              onChange={handleUsernameChange}
-              placeholder={
-                isEmail ? "Enter your email" : "Enter your phone number"
-              }
-              regex={isEmail ? emailRegex : phoneRegex}
-              toggleSignInOption={toggleSignInOption}
-              sideLabel={true}
-              isEmail={isEmail}
-              setIsEmail={setIsEmail}
-              errorLabel={`Wrong ${isEmail ? "email" : "phone number"}`}
-            />
-            <InputCard
-              type="password"
-              label="Password"
-              value={password}
-              onChange={handlePasswordChange}
-              placeholder="Enter your password"
-              regex={passwordRegex}
-              setValue={setPass}
-              errorLabel="wrong password"
-            />
-            <div className="flex-col flex justify-between "></div>
+              <InputCard
+                type={isEmail ? "email" : "tel"}
+                label={
+                  isEmail
+                    ? "Enter Registered Email"
+                    : "Enter Registered Phone Number"
+                }
+                id={isEmail ? "username-input" : "phone-input"}
+                setPhoneNumber={!isEmail && setPhoneNumber}
+                setValue={isEmail && setEmail}
+                value={username}
+                onChange={handleUsernameChange}
+                placeholder={
+                  isEmail ? "Enter your email" : "Enter your phone number"
+                }
+                regex={isEmail ? emailRegex : phoneRegex}
+                toggleSignInOption={toggleSignInOption}
+                sideLabel={true}
+                isEmail={isEmail}
+                setIsEmail={setIsEmail}
+                errorLabel={`Wrong ${isEmail ? "email" : "phone number"}`}
+              />
 
-            <div className="flex gap-1 justify-between">
-              <div className="flex flex-col gap-3">
-                <div className="text-white flex gap-2">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={() => setRememberMe(!rememberMe)}
-                  />
-                  <label>Remember me</label>
+              <InputCard
+                type="password"
+                label="Reset Password"
+                value={confirmPassword}
+                onChange={(value) => setConfirmPassword(value)}
+                placeholder="Confirm your password"
+                password={password}
+                confirm={true}
+                confirmPasswordRegex={passwordRegex}
+                errorLabel="password does'nt match"
+                required={true}
+                setValue={setResetPass}
+              />
+              <div className="flex-col flex justify-between "></div>
+
+              <div className="flex gap-1 justify-between">
+                <div className="flex flex-col gap-3">
+                  <p className=" text-white">
+                    Already have an account ?{" "}
+                    <a href="/signin" className="text-blue-500">
+                      {" "}
+                      Sign in
+                    </a>
+                  </p>
+
+                  <p className=" text-white">
+                    {" "}
+                    Don&apos;t have an account ?{" "}
+                    <a href="/signup" className="text-blue-500">
+                      {" "}
+                      Sign up
+                    </a>
+                  </p>
                 </div>
-                <a href="/signup" className="text-blue-500">
-                  Sign up now
-                </a>
+                <div className="flex flex-col gap-2 justify-center items-center">
+                  <LoaderButton
+                    label="Send Verification Code"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+                    loading={loading1}
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <LoaderButton
-                  label="Sign In"
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-                  loading={loading1}
-                />
-                <a href="/forgetPassword" className="text-blue-500">
-                  Forgot password?
-                </a>
-              </div>
-            </div>
-          </form>
-          <div className="w-full m-8">
-            <hr className=" border-b-2 border-white w-full" />
-          </div>
-
-          <div>
-            <LoaderButton
-              label="Sign in with Google"
-              class="bg-transparent border-blue-500 border-2 hover:border-white hover:text-white text-blue-300 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-              onClick={handleGoogleSignIn}
-              image={googleIcon}
-              loading={loading2}
-            />
-          </div>
+            </form>
+          ) : (
+            <OTPForm onBack={onBack}></OTPForm>
+          )}
         </div>
       </div>
     </div>

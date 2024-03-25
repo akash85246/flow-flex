@@ -7,9 +7,7 @@ import { AuthProvider } from "../utils/authContext/authContext";
 import SignIn from "../pages/signin/signin";
 import Home from "../pages/home/homePage";
 import SignUp from "../pages/signup/signup";
-import SignUpOtp from "../components/authentication/forgotPassword/otp";
-import ForgetPassword from "../components/authentication/forgotPassword/forgot";
-import ForgetPasswordOtp from "../components/authentication/forgotPassword/otp";
+import ForgetPassword from "../pages/forgotCredentials/forgot";
 
 export default function App() {
   return (
@@ -22,12 +20,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/signupVerification" element={<SignUpOtp />} />
             <Route path="/forgetPassword" element={<ForgetPassword />} />
-            <Route
-              path="/passwordverification"
-              element={<ForgetPasswordOtp />}
-            />
           </Routes>
         </Router>
       </MyProvider>

@@ -42,8 +42,6 @@ export default function SignUpOtp() {
     setName,
   } = useContext(MyContext);
 
-  const signInEndpoint = import.meta.env
-    .VITE_REACT_APP_RENDER_API_SIGN_IN_ENDPOINT;
   const signUpEndpoint = import.meta.env
     .VITE_REACT_APP_RENDER_API_SIGN_UP_ENDPOINT;
 
@@ -142,7 +140,6 @@ export default function SignUpOtp() {
     }
 
     setLoading1(true);
-    console.log(signInEndpoint);
 
     try {
       const response = await axios.post(signUpEndpoint, {
@@ -160,10 +157,13 @@ export default function SignUpOtp() {
       if (error.response && error.response.data) {
         const errorMessage = error.response.data.message || "An error occurred";
         toast.error(errorMessage);
-        console.error("Server responded with an error:", errorMessage);
+        console.error("Server responded with an error:", error);
       } else if (error.request) {
         toast.error("No response received. Network error occurred.");
-        console.error("No response received. Network error occurred.");
+        console.error(
+          "No response received. Network error occurred.",
+          error.request
+        );
       } else {
         toast.error("Error setting up the request.");
         console.error("Error setting up the request.", error);
