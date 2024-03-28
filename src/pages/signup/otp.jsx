@@ -18,6 +18,7 @@ const OTPForm = ({ onBack }) => {
     phoneNumber,
 
     email,
+    setIsSignedIn,
 
     pass,
   } = useContext(MyContext);
@@ -151,6 +152,7 @@ const OTPForm = ({ onBack }) => {
       console.log(authToken);
       if (response.data.success) {
         toast.success("Successfully logged in!");
+        setIsSignedIn(true);
         navigate("/");
       }
     } catch (error) {

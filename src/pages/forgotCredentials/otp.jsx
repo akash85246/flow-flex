@@ -14,7 +14,7 @@ const OTPForm = ({ onBack }) => {
   const [otp, setOtp] = useState("");
   const [resendTimer, setResendTimer] = useState(60);
   const { authToken, updateAuthToken } = useAuth();
-  const { phoneNumber, setPass, pass, email, resetPass } =
+  const { phoneNumber, setPass, pass, email, resetPass, setIsSignedIn } =
     useContext(MyContext);
   const [loading1, setLoading1] = useState(false);
 
@@ -205,6 +205,7 @@ const OTPForm = ({ onBack }) => {
       console.log(authToken);
       if (response.data.success) {
         toast.success("Successfully logged in!");
+        setIsSignedIn(true);
         navigate("/");
       }
     } catch (error) {

@@ -150,7 +150,7 @@ export default function SignUpOtp() {
 
       console.log(authToken);
       if (response.data.success) {
-        toast.success("Successfully Signed up");
+        toast.success("Successfully Otp is sent to your email");
         setStep("sigup");
       }
     } catch (error) {

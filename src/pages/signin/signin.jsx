@@ -7,21 +7,30 @@ import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { useAuth } from "../../utils/authContext/authContext";
 import axios from "axios";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useNavigate } from "react-router-dom";
 import MyContext from "../../utils/context/MyContext";
 
 export default function SignIn() {
   const { authToken, updateAuthToken } = useAuth();
-  const { phoneNumber, setPhoneNumber, email, setEmail, pass, setPass } =
-    useContext(MyContext);
+  const {
+    phoneNumber,
+    setPhoneNumber,
+    email,
+    setEmail,
+    pass,
+    setPass,
+    isSignedIn,
+    setIsSignedIn,
+  } = useContext(MyContext);
   const [isEmail, setIsEmail] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
+  const navigate = useNavigate();
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^[0-9]{10}$/;
@@ -127,7 +136,7 @@ export default function SignIn() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (isEmail) {
-      if (email == "" || phoneNumber == "") {
+      if (email == "" && phoneNumber == "") {
         toast.error("enter user detail");
         return;
       } else if (pass == "") {
@@ -157,6 +166,8 @@ export default function SignIn() {
       console.log(authToken);
       if (response.data.success) {
         toast.success("Successfully logged in!");
+        setIsSignedIn(true);
+        navigate("/");
       }
     } catch (error) {
       if (error.response && error.response.data) {
