@@ -8,7 +8,7 @@ import SignIn from "../pages/signin/signin";
 import Home from "../pages/home/homePage";
 import SignUp from "../pages/signup/signup";
 import ForgetPassword from "../pages/forgotCredentials/forgot";
-
+import HelloUser from "../pages/helloUser/helloUser";
 export default function App() {
   return (
     <AuthProvider>
@@ -21,6 +21,7 @@ export default function App() {
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgetPassword" element={<ForgetPassword />} />
+            <Route path="/hellouser" element={<HelloUser />} />
           </Routes>
         </Router>
       </MyProvider>

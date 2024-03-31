@@ -294,7 +294,7 @@ export default function Home() {
         </div>
       </motion.section>
       <motion.section
-        className="border-2 border-purple-800 flex sm:flex-row flex-col justify-between items-center md:w-2/3 md:m-auto p-5 my-10 md:gap-10 gap-5 m-5"
+        className="border-2 border-purple-800 flex sm:flex-row flex-col justify-between items-center md:w-2/3 md:m-auto md:mt-10 p-5 my-10 md:gap-10 gap-5 m-5"
         ref={ref5}
         initial={{ opacity: 0, scale: 0.5 }}
         animate={

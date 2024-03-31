@@ -179,11 +179,6 @@ export default function SignUpOtp() {
     }
   };
 
-  // const handlePasswordChange = (event) => {
-  //   if (event && event.target) {
-  //     setPassword(event.target.value);
-  //   }
-  // };
 
   const handleEmailChange = (event) => {
     if (event && event.target) {

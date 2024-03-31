@@ -249,7 +249,12 @@ const Navbar = (props) => {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <button className="bg-white rounded-lg p-2 text-purple-800">
+                  <button
+                    className="bg-white rounded-lg p-2 text-purple-800"
+                    onClick={() => {
+                      navigate("/hellouser");
+                    }}
+                  >
                     Hello User !!
                   </button>
                 </motion.li>
