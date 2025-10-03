@@ -8,25 +8,50 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import AuthRoute from "./components/ProtectedRoute/AuthRoute";
 import MainLayout from "./components/layout/Main.layout";
 import AuthLayout from "./components/layout/Auth.layout";
+import ResetPassword from "./pages/auth/ResetPassword";
+
+import signinImage from "./assets/auth/illustrations/signin.svg";
+import signupImage from "./assets/auth/illustrations/signup.svg";
+import verificationImage from "./assets/auth/illustrations/verification.svg";
 import "./styles/App.css";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<AuthLayout />}>
-          {/* Auth routes  */}
+        {/* Auth routes */}
+        <Route
+          path="/"
+          element={
+            <AuthLayout
+              image={signinImage}
+              title="Welcome Back!"
+              description="Log in to your account to continue your journey with Flow Flex."
+            />
+          }
+        >
           <Route
-            path="/signin"
+            path="signin"
             element={
               <AuthRoute>
                 <Signin />
               </AuthRoute>
             }
           />
+        </Route>
 
+        <Route
+          path="/"
+          element={
+            <AuthLayout
+              image={signupImage}
+              title="Join Us!"
+              description="Create a new account and start your journey with Flow Flex."
+            />
+          }
+        >
           <Route
-            path="/signup"
+            path="signup"
             element={
               <AuthRoute>
                 <Signup />
@@ -35,34 +60,52 @@ function App() {
           />
         </Route>
 
-        <Route path="/" element={<MainLayout />}>
+        <Route
+          path="/"
+          element={
+            <AuthLayout
+              image={verificationImage}
+               title="Reset Your Password"
+              description="Secure your account by following the steps to reset your password and continue your journey with Flow Flex."
+            />
+          }
+        >
           <Route
-            path="/welcome"
+            path="resetpassword"
+            element={
+              <AuthRoute>
+                <ResetPassword />
+              </AuthRoute>
+            }
+          />
+        </Route>
+
+        {/* Main layout routes */}
+        <Route element={<MainLayout />}>
+          <Route
+            path="welcome"
             element={
               <AuthRoute>
                 <Welcome />
               </AuthRoute>
             }
           />
-          {/* Protected routes */}
           <Route
-            path="/"
+            path="dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="/board/:boardId"
+            path="board/:boardId"
             element={
               <ProtectedRoute>
                 <Board />
               </ProtectedRoute>
             }
           />
-
           <Route path="*" element={<Dashboard />} />
         </Route>
       </Routes>

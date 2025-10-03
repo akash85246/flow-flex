@@ -3,7 +3,7 @@ import { Twitter, Linkedin, Facebook, Github, Instagram } from "lucide-react";
 export default function Footer() {
   return (
     <>
-      <footer className="bg-gradient-to-r from-tertiary to-fourth text-white z-[100000000]">
+      <footer className="bg-gradient-to-r from-tertiary to-fourth text-white z-[10]">
         <div className="max-w-7xl mx-auto p-6  md:p-2 lg:p-12 grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-2 lg:gap-8  m-auto">
           {/* Brand Section */}
           <div>

@@ -2,17 +2,19 @@ import { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { CheckCircle, Circle } from "lucide-react";
-import SignInForm from "../../components/auth/SignIn";
-import VerifyOTP from "../../components/auth/VerifyOTP";
+import ResetEmailForm from "../../components/auth/ResetEmailForm";
+import ResetPasswordForm from "../../components/auth/ResetPassword";
+import VerifyResetOTPForm from "../../components/auth/VerifyResetOTP";
 import Complete from "../../components/auth/Complete";
 
 const steps = [
-  { id: 1, title: "Email & Password" },
+  { id: 1, title: "Email" },
   { id: 2, title: "2FA / OTP" },
-  { id: 3, title: "Complete" },
+  { id: 3, title: "Reset Password" },
+  { id: 4, title: "Complete" },
 ];
 
-export default function SignIn() {
+export default function ResetPassword() {
   const [currentStep, setCurrentStep] = useState(1);
 
   return (
@@ -65,20 +67,27 @@ export default function SignIn() {
       {/* Step Content */}
       <div className="mt-10 w-full">
         {currentStep === 1 && (
-          <SignInForm
+          <ResetEmailForm
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
           />
         )}
         {currentStep === 2 && (
-          <VerifyOTP
+          <VerifyResetOTPForm
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
           />
         )}
         {currentStep === 3 && (
+          <ResetPasswordForm
+            steps={steps}
+            currentStep={currentStep}
+            setCurrentStep={setCurrentStep}
+          />
+        )}
+        {currentStep === 4 && (
           <Complete
             steps={steps}
             currentStep={currentStep}
