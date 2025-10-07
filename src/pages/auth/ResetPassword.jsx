@@ -16,6 +16,8 @@ const steps = [
 
 export default function ResetPassword() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [email, setEmail] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
 
   return (
     <div className="flex flex-col items-center justify-center w-full md:p-4 lg:p-6 max-w-3xl">
@@ -71,6 +73,8 @@ export default function ResetPassword() {
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
+            setEmail={setEmail}
+            email={email}
           />
         )}
         {currentStep === 2 && (
@@ -78,6 +82,9 @@ export default function ResetPassword() {
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
+            email={email}
+            setOtpVerified={setOtpVerified}
+            otpVerified={otpVerified}
           />
         )}
         {currentStep === 3 && (
@@ -85,10 +92,14 @@ export default function ResetPassword() {
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
+            email={email}
+            otpVerified={otpVerified}
           />
         )}
         {currentStep === 4 && (
           <Complete
+            heading="Password Reset Successful!"
+            content="You can now log in with your new password."
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}

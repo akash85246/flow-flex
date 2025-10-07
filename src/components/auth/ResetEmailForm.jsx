@@ -1,15 +1,18 @@
 import { useState } from "react";
+import axios from "axios";
+import { s } from "framer-motion/client";
 
-
-export default function ResetEmail({ currentStep, setCurrentStep, steps }) {
-  const [email, setEmail] = useState("");
-
-
+export default function ResetEmail({
+  currentStep,
+  setCurrentStep,
+  steps,
+  email,
+  setEmail,
+}) {
   const [emailError, setEmailError] = useState("");
-
+  const [disabled, setDisabled] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
- 
 
   // Live validation for email
   const handleEmailChange = (e) => {
@@ -25,13 +28,33 @@ export default function ResetEmail({ currentStep, setCurrentStep, steps }) {
     }
   };
 
-
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setDisabled(true);
 
-    if (!emailError  && email ) {
-      setCurrentStep((prev) => (prev < steps.length ? prev + 1 : prev));
+    if (!emailError && email) {
+      try {
+        const Backend_URL = import.meta.env.VITE_BACKEND_URL;
+        const result = await axios.post(
+          `${Backend_URL}/api/auth/reset-otp`,
+          { email },
+          {
+            withCredentials: true,
+          }
+        );
+        console.log("Email for reset:", email, result);
+        if (result.status === 200) {
+          console.log("Reset Email Response:", result);
+          alert("If this email is registered, a reset link has been sent.");
+          setCurrentStep((prev) => (prev < steps.length ? prev + 1 : prev));
+        }
+      } catch (error) {
+        console.error("Error sending reset email:", error);
+        alert("Failed to send reset email. Please try again.");
+        return;
+      } finally {
+        setDisabled(false);
+      }
     }
   };
 
@@ -47,7 +70,6 @@ export default function ResetEmail({ currentStep, setCurrentStep, steps }) {
         <div className="flex flex-col gap-2">
           <label className="text-sm md:text-base font-light text-secondary flex justify-between">
             <span>Email Address</span>
-            
           </label>
           <input
             type="email"
@@ -55,22 +77,27 @@ export default function ResetEmail({ currentStep, setCurrentStep, steps }) {
             onChange={handleEmailChange}
             placeholder="you@example.com"
             className={`px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 text-lg
-              ${emailError ? "border-red-400 focus:ring-red-400" : "border-secondary focus:ring-primary"}`}
+              ${
+                emailError
+                  ? "border-red-400 focus:ring-red-400"
+                  : "border-secondary focus:ring-primary"
+              }`}
           />
           {emailError && <p className="text-red-400 text-xs">{emailError}</p>}
         </div>
 
-       
-
         {/* Submit Button */}
         <button
+          disabled={disabled || emailError || !email}
           type="submit"
-          className="w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition"
+          className={`w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition ${
+            disabled
+              ? "opacity-50 cursor-not-allowed hover:scale-100"
+              : ""
+          }`}
         >
           {currentStep === steps.length ? "Finish" : "Next"}
         </button>
-
-        
       </form>
     </div>
   );

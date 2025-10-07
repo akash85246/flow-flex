@@ -5,15 +5,15 @@ import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import Confetti from "react-confetti";
 
-export default function Complete() {
+export default function Complete({heading,content}) {
   const navigate = useNavigate();
   const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowConfetti(false);
-      navigate("/dashboard"); // redirect after 10 seconds
-    }, 10000);
+      navigate("/dashboard"); // redirect after 5 seconds
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [navigate]);
@@ -29,9 +29,9 @@ export default function Complete() {
         className="flex flex-col items-center bg-white p-8 rounded-2xl"
       >
         <CheckCircle className="text-green-500 w-20 h-20 mb-4 animate-bounce" />
-        <h1 className="text-4xl font-semibold mb-2">Authentication Successful!</h1>
+        <h1 className="text-4xl font-semibold mb-2">{heading}</h1>
         <p className="text-gray-500 mb-6 text-center text-sm md:text-lg">
-          You will be redirected to your dashboard shortly.
+          {content}
         </p>
 
         <motion.div

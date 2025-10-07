@@ -1,15 +1,22 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import GoogleIcon from "../../assets/auth/icons/google.svg";
+import axios from "axios";
 
-export default function SignIn({ currentStep, setCurrentStep, steps }) {
-  const [email, setEmail] = useState("");
+export default function SignIn({
+  currentStep,
+  setCurrentStep,
+  steps,
+  rememberMe,
+  setRememberMe,
+  email,
+  setEmail,
+}) {
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [disabled,setDisabled]=useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex =
@@ -45,11 +52,32 @@ export default function SignIn({ currentStep, setCurrentStep, steps }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!emailError && !passwordError && email && password) {
+    if (emailError || passwordError || !email || !password) {
+      alert("Please fix the errors before submitting.");
+      return;
+    }
+
+    const Backend_URL = import.meta.env.VITE_BACKEND_URL;
+    setDisabled(true);
+
+    try {
+      const response = await axios.post(`${Backend_URL}/api/auth/signin`, {
+        email,
+        password,
+      });
+
+      console.log("Response:", response.data);
+      alert("OTP sent successfully!");
+
       setCurrentStep((prev) => (prev < steps.length ? prev + 1 : prev));
+    } catch (error) {
+      console.error("Error:", error.response?.data || error.message);
+      alert(error.response?.data?.error || "Something went wrong.");
+    }finally{
+      setDisabled(false);
     }
   };
 
@@ -78,7 +106,11 @@ export default function SignIn({ currentStep, setCurrentStep, steps }) {
             onChange={handleEmailChange}
             placeholder="you@example.com"
             className={`px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 text-lg
-              ${emailError ? "border-red-400 focus:ring-red-400" : "border-secondary focus:ring-primary"}`}
+              ${
+                emailError
+                  ? "border-red-400 focus:ring-red-400"
+                  : "border-secondary focus:ring-primary"
+              }`}
           />
           {emailError && <p className="text-red-400 text-xs">{emailError}</p>}
         </div>
@@ -95,7 +127,11 @@ export default function SignIn({ currentStep, setCurrentStep, steps }) {
               onChange={handlePasswordChange}
               placeholder="••••••••"
               className={`px-4 py-2 rounded-lg border w-full focus:outline-none focus:ring-2 text-lg
-                ${passwordError ? "border-red-400 focus:ring-red-400" : "border-secondary focus:ring-primary"}`}
+                ${
+                  passwordError
+                    ? "border-red-400 focus:ring-red-400"
+                    : "border-secondary focus:ring-primary"
+                }`}
             />
             <button
               type="button"
@@ -124,7 +160,12 @@ export default function SignIn({ currentStep, setCurrentStep, steps }) {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition"
+          disabled={disabled || emailError || passwordError || !email || !password}
+          className={`w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition  ${
+            disabled
+              ? "opacity-50 cursor-not-allowed hover:scale-100"
+              : ""
+          }`}
         >
           {currentStep === steps.length ? "Finish" : "Next"}
         </button>
@@ -136,15 +177,15 @@ export default function SignIn({ currentStep, setCurrentStep, steps }) {
         </div>
 
         {/* Google Sign In */}
-        <button
+        <a href={`${import.meta.env.VITE_BACKEND_URL}/api/auth/google-signin`}
           type="button"
           className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-lg border border-gray-300 
-             text-gray-700 font-semibold shadow-sm hover:bg-gray-100 hover:shadow-md 
+             text-gray-700 font-semibold shadow-sm hover:bg-gray-100 hover:shadow-md hover:scale-105 
              transition duration-200 ease-in-out active:scale-95"
         >
           <img src={GoogleIcon} alt="Google" className="w-5 h-5" />
           <span>Sign in with Google</span>
-        </button>
+        </a>
       </form>
     </div>
   );

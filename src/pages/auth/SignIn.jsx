@@ -14,6 +14,8 @@ const steps = [
 
 export default function SignIn() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [rememberMe, setRememberMe] = useState(false);
+  const[email,setEmail]=useState("");
 
   return (
     <div className="flex flex-col items-center justify-center w-full md:p-4 lg:p-6 max-w-3xl">
@@ -69,6 +71,10 @@ export default function SignIn() {
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
+            rememberMe={rememberMe}
+            setRememberMe={setRememberMe}
+            email={email}
+            setEmail={setEmail}
           />
         )}
         {currentStep === 2 && (
@@ -76,10 +82,14 @@ export default function SignIn() {
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
+            rememberMe={rememberMe}
+            email={email}
           />
         )}
         {currentStep === 3 && (
           <Complete
+          heading="Authentication Successful!"
+          content="You will be redirected to your dashboard shortly."
             steps={steps}
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}

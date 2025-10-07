@@ -21,7 +21,7 @@ export default function Welcome() {
         <div className="relative w-full bg-tertiary flex flex-col items-center  text-white font-bold p-4 md:p-8  pb-10 md:pb-20 pt-20  md:!pt-40 lg:!pt-16 h-[30rem] md:h-[40rem]">
           <div className="max-w-4xl flex flex-col items-center gap-4">
             <h1 className="text-2xl md:text-4xl lg:text-5xl font-semibold">
-              Pro-Go brings all your tasks, teammates, and tools together
+              Flow Flex brings all your tasks, teammates, and tools together
             </h1>
             <p className="text-lg md:text-xl text-center">
               Keep everything in the same place—even if your team isn't.
@@ -53,7 +53,7 @@ export default function Welcome() {
               One less thing to worry about
             </h3>
             <p className="text-lg md:text-xl text-secondary text-center ">
-              Your free Pro-Go account gets you access to all this and more...
+              Your free Flow Flex account gets you access to all this and more...
             </p>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function Welcome() {
           </ul>
         </div>
       </section>
-      <section classname="">
+      <section className="">
         <h3 className="text-tertiary text-2xl text-center col-span-2 p-4 md:py-10  max-w-7xl mx-auto">
           WORKFLOWS FOR ANY PROJECT BIG OR SMALL
         </h3>

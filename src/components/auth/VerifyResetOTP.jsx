@@ -1,10 +1,22 @@
 import OtpInput from "react-otp-input";
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser, clearUser } from "../../redux/slices/userSlice";
+import axios from "axios";
 
-export default function VerifyResetOTP({ setCurrentStep, currentStep, steps }) {
+export default function VerifyResetOTP({
+  setCurrentStep,
+  currentStep,
+  steps,
+  email,
+  setOtpVerified,
+  otpVerified,
+}) {
+  const dispatch = useDispatch();
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(60);
   const [resendEnabled, setResendEnabled] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   useEffect(() => {
     if (timer > 0) {
@@ -18,19 +30,56 @@ export default function VerifyResetOTP({ setCurrentStep, currentStep, steps }) {
     }
   }, [timer]);
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (otp.length === 6) {
-      setCurrentStep((prev) => (prev < steps.length ? prev + 1 : prev));
+      const Backend_URL = import.meta.env.VITE_BACKEND_URL;
+      const response = await axios.post(
+        `${Backend_URL}/api/auth/verify-reset-otp`,
+        {
+          email,
+          otp,
+          rememberMe: false,
+        },
+        { withCredentials: true }
+      );
+      console.log("OTP Verification Response:", response.data);
+      if (response.status === 200) {
+        setOtpVerified(true);
+        setCurrentStep((prev) => (prev < steps.length ? prev + 1 : prev));
+      }
     } else {
-      alert("Please enter a valid 6-digit OTP");
+      alert("Please enter a valid 4-digit OTP");
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!resendEnabled) return;
-    alert("OTP has been resent!");
-    setTimer(60);
-    setResendEnabled(false);
+    setDisabled(true);
+    try {
+      const Backend_URL = import.meta.env.VITE_BACKEND_URL;
+      const response = await axios.post(
+        `${Backend_URL}/api/auth/resend-otp`,
+        { email },
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        alert("OTP has been resent!");
+        setTimer(60);
+        setResendEnabled(false);
+      } else {
+        alert("Failed to resend OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error resending OTP:", error);
+      alert(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    } finally {
+      setDisabled(false);
+    }
   };
 
   return (
@@ -55,7 +104,10 @@ export default function VerifyResetOTP({ setCurrentStep, currentStep, steps }) {
         {/* Verify Button */}
         <button
           onClick={handleVerify}
-          className="w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition"
+          disabled={disabled || otp.length !== 6}
+          className={`w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition${
+            disabled ? "opacity-50 cursor-not-allowed hover:scale-100" : ""
+          }`}
         >
           Verify
         </button>

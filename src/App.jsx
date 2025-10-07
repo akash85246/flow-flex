@@ -8,13 +8,16 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import AuthRoute from "./components/ProtectedRoute/AuthRoute";
 import MainLayout from "./components/layout/Main.layout";
 import AuthLayout from "./components/layout/Auth.layout";
+import DashboardLayout from "./components/layout/Dashboard.layout";
 import ResetPassword from "./pages/auth/ResetPassword";
 
 import signinImage from "./assets/auth/illustrations/signin.svg";
 import signupImage from "./assets/auth/illustrations/signup.svg";
 import verificationImage from "./assets/auth/illustrations/verification.svg";
 import "./styles/App.css";
+import axios from "axios";
 
+axios.defaults.withCredentials = true;
 function App() {
   return (
     <Router>
@@ -90,6 +93,20 @@ function App() {
               </AuthRoute>
             }
           />
+      
+          <Route
+            path="board/:boardId"
+            element={
+              <ProtectedRoute>
+                <Board />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+
+        {/*Dash Board layout routes */}
+        <Route element={<DashboardLayout />}>
+          
           <Route
             path="dashboard"
             element={
@@ -98,6 +115,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+       
           <Route
             path="board/:boardId"
             element={

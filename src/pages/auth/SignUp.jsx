@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser, clearUser } from "../../redux/slices/userSlice";
 export default function SignUp() {
+  const dispatch = useDispatch();
+  const Backend_URL = import.meta.env.VITE_BACKEND_URL;
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     email: "",
-    organization: "",
+    organization_code: "",
     password: "",
     confirmPassword: "",
     rememberMe: false,
@@ -26,18 +30,15 @@ export default function SignUp() {
     let error = "";
 
     switch (name) {
-      case "firstName":
+      case "first_name":
         if (!value.trim()) error = "First name is required";
         break;
-      case "lastName":
+      case "last_name":
         if (!value.trim()) error = "Last name is required";
         break;
       case "email":
         if (!value) error = "Email is required";
         else if (!emailRegex.test(value)) error = "Enter a valid email";
-        break;
-      case "organization":
-        if (!value.trim()) error = "Organization is required";
         break;
       case "password":
         if (!value) error = "Password is required";
@@ -66,7 +67,6 @@ export default function SignUp() {
       [name]: fieldValue,
     }));
 
-
     const error = validateField(name, fieldValue);
     setErrors((prev) => ({
       ...prev,
@@ -84,11 +84,38 @@ export default function SignUp() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log("Form Submitted ", form);
+
+    if (!validateForm()) {
+      console.warn("Form validation failed");
+      return;
+    }
+
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const formData = { ...form, timezone: userTimezone };
+    delete formData.confirmPassword;
+
+    try {
+      const response = await axios.post(`${Backend_URL}/api/auth/signup`, form,{ withCredentials: true } );
+      console.log("User registered:", response.data);
+      const userData = response.data.user;
+      dispatch(setUser(userData));
       navigate("/dashboard");
+    } catch (error) {
+      console.error("Error registering user:", error);
+
+      if (error.response?.data?.message) {
+        setErrors((prev) => ({
+          ...prev,
+          apiError: error.response.data.message,
+        }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          apiError: "Something went wrong. Please try again.",
+        }));
+      }
     }
   };
 
@@ -108,16 +135,16 @@ export default function SignUp() {
             </label>
             <input
               type="text"
-              name="firstName"
-              value={form.firstName}
+              name="first_name"
+              value={form.first_name}
               onChange={handleChange}
               placeholder="First Name"
               className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                errors.firstName ? "border-red-500" : "border-gray-300"
+                errors.first_name ? "border-red-500" : "border-gray-300"
               }`}
             />
-            {errors.firstName && (
-              <p className="text-red-500 text-sm -mt-2">{errors.firstName}</p>
+            {errors.first_name && (
+              <p className="text-red-500 text-sm -mt-2">{errors.first_name}</p>
             )}
           </div>
           <div className="flex flex-col gap-2">
@@ -126,16 +153,16 @@ export default function SignUp() {
             </label>
             <input
               type="text"
-              name="lastName"
-              value={form.lastName}
+              name="last_name"
+              value={form.last_name}
               onChange={handleChange}
               placeholder="Last Name"
               className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                errors.lastName ? "border-red-500" : "border-gray-300"
+                errors.last_name ? "border-red-500" : "border-gray-300"
               }`}
             />
-            {errors.lastName && (
-              <p className="text-red-500 text-sm -mt-2">{errors.lastName}</p>
+            {errors.last_name && (
+              <p className="text-red-500 text-sm -mt-2">{errors.last_name}</p>
             )}
           </div>
         </div>
@@ -163,20 +190,22 @@ export default function SignUp() {
         {/* Organization */}
         <div className="flex flex-col gap-2">
           <label className="text-sm md:text-base font-light text-secondary">
-            Organization
+            Organization Code
           </label>
           <input
             type="text"
-            name="organization"
-            value={form.organization}
+            name="organization_code"
+            value={form.organization_code}
             onChange={handleChange}
-            placeholder="Organization"
+            placeholder="Organization Code"
             className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.organization ? "border-red-500" : "border-gray-300"
+              errors.organization_code ? "border-red-500" : "border-gray-300"
             }`}
           />
-          {errors.organization && (
-            <p className="text-red-500 text-sm -mt-2">{errors.organization}</p>
+          {errors.organization_code && (
+            <p className="text-red-500 text-sm -mt-2">
+              {errors.organization_code}
+            </p>
           )}
         </div>
 
@@ -259,8 +288,7 @@ export default function SignUp() {
             required
           />
           <span className="text-sm text-gray-400">
-            I agree to all the{" "}
-            <span className="text-tertiary">Terms</span> and{" "}
+            I agree to all the <span className="text-tertiary">Terms</span> and{" "}
             <span className="text-tertiary">Privacy policy</span>
           </span>
         </div>

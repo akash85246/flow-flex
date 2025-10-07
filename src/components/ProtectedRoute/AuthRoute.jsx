@@ -1,15 +1,35 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import axios from "axios";
 
 const AuthRoute = ({ children }) => {
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
 
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/auth/check`,
+          {
+            withCredentials: true,
+          }
+        );
+        console.log("Auth check response:", res.data);
+        setAuthenticated(res.data.authenticated);
+      } catch (error) {
+        setAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return children;
+    checkAuth();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  return authenticated ? <Navigate to="/dashboard" replace /> : children;
 };
 
 export default AuthRoute;

@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-
-export default function ResetPassword({ currentStep, setCurrentStep, steps }) {
+import axios from "axios";
+export default function ResetPassword({
+  currentStep,
+  setCurrentStep,
+  steps,
+  email,
+  otpVerified,
+}) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const[disabled,setDisabled]=useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -44,11 +51,18 @@ export default function ResetPassword({ currentStep, setCurrentStep, steps }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+
+    // Reset old errors first
+    setPasswordError("");
+    setConfirmPasswordError("");
+    setDisabled(true);
 
     let valid = true;
 
+    // Validate inputs
     if (!password) {
       setPasswordError("Password is required");
       valid = false;
@@ -64,9 +78,37 @@ export default function ResetPassword({ currentStep, setCurrentStep, steps }) {
       valid = false;
     }
 
-    if (!passwordError && !confirmPasswordError && valid) {
-      console.log("Password reset successfully:", password);
-      setCurrentStep((prev) => (prev < steps.length ? prev + 1 : prev));
+   
+    if (!valid) return;
+
+    try {
+      console.log("Password reset initiated:", { email, password });
+
+      const Backend_URL = import.meta.env.VITE_BACKEND_URL;
+      const response = await axios.post(
+        `${Backend_URL}/api/auth/reset-password`,
+        { email, password },
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        alert(
+          "Password reset successfully. Please sign in with your new password."
+        );
+        console.log("Password reset successfully:", password, currentStep);
+        console.log("Email for reset:", email, currentStep);
+
+        setCurrentStep((prev) => (prev < steps.length ? prev + 1 : prev));
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      alert(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
+    }finally{
+      setDisabled(false);
     }
   };
 
@@ -74,7 +116,8 @@ export default function ResetPassword({ currentStep, setCurrentStep, steps }) {
     <div className="w-full font-inter">
       <h1 className="text-4xl font-semibold mb-2">Reset Password</h1>
       <p className="text-fourth mb-6 text-sm md:text-lg">
-        Create a new password to secure your Flow Flex account and regain access.
+        Create a new password to secure your Flow Flex account and regain
+        access.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -90,7 +133,11 @@ export default function ResetPassword({ currentStep, setCurrentStep, steps }) {
               onChange={handlePasswordChange}
               placeholder="••••••••"
               className={`px-4 py-2 rounded-lg border w-full focus:outline-none focus:ring-2 text-lg
-                ${passwordError ? "border-red-400 focus:ring-red-400" : "border-secondary focus:ring-primary"}`}
+                ${
+                  passwordError
+                    ? "border-red-400 focus:ring-red-400"
+                    : "border-secondary focus:ring-primary"
+                }`}
             />
             <button
               type="button"
@@ -117,7 +164,11 @@ export default function ResetPassword({ currentStep, setCurrentStep, steps }) {
               onChange={handleConfirmPasswordChange}
               placeholder="••••••••"
               className={`px-4 py-2 rounded-lg border w-full focus:outline-none focus:ring-2 text-lg
-                ${confirmPasswordError ? "border-red-400 focus:ring-red-400" : "border-secondary focus:ring-primary"}`}
+                ${
+                  confirmPasswordError
+                    ? "border-red-400 focus:ring-red-400"
+                    : "border-secondary focus:ring-primary"
+                }`}
             />
             <button
               type="button"
@@ -135,7 +186,12 @@ export default function ResetPassword({ currentStep, setCurrentStep, steps }) {
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition"
+          disabled={disabled || passwordError || confirmPasswordError || !password || !confirmPassword}
+          className={`w-full mt-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold shadow-lg hover:scale-105 transition  ${
+            disabled
+              ? "opacity-50 cursor-not-allowed hover:scale-100"
+              : ""
+          }`}
         >
           {currentStep === steps.length ? "Finish" : "Next"}
         </button>
