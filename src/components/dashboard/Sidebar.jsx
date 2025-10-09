@@ -19,18 +19,24 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser, clearUser } from "../../redux/slices/userSlice";
+import {
+  setActiveTab,
+  clearActiveTab,
+} from "../../redux/slices/organizationSlice";
 import logo from "../../assets/logo/FF.jpg";
 import axios from "axios";
 
-export default function Sidebar({ activeTab, setActiveTab }) {
-  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const activeTab = useSelector((state) => state.organization.activeTab);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
   const handleItemClick = (tab) => {
-    setActiveTab(tab);
-    console.log("Clicked tab:", tab);
+    dispatch(setActiveTab(tab));
   };
+  
   const logoutUser = async () => {
     try {
       const Backend_URL = import.meta.env.VITE_BACKEND_URL;
@@ -39,12 +45,10 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         {},
         { withCredentials: true }
       );
-      if (result.status !== 200) {
-        throw new Error("Logout failed");
+      if (result.status === 200) {
+        dispatch(clearUser());
+        navigate("/welcome");
       }
-
-      dispatch(clearUser());
-      navigate("/welcome");
     } catch (error) {
       console.error("Logout failed:", error);
       alert("Logout failed. Please try again.");
@@ -60,7 +64,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
       onDoubleClick={handleDoubleClick}
       className={`${
         isCollapsed ? "w-20" : "w-64"
-      } bg-white h-screen border-r border-gray-200 shadow-sm flex flex-col justify-between fixed left-0 top-0 z-0 transition-all duration-300`}
+      } bg-white h-screen overflow-y-auto border-r border-gray-200 shadow-sm flex flex-col justify-between fixed left-0 top-0 z-10 transition-all duration-300`}
     >
       {/* Top Section */}
       <div className="p-4">

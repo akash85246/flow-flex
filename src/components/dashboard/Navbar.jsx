@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { setUser, clearUser } from "../../redux/slices/userSlice";
+import {clearUser } from "../../redux/slices/userSlice";
+import {setOrganizations, clearOrganizations} from "../../redux/slices/organizationsSlice";
+import{setActiveTab} from "../../redux/slices/organizationSlice";
 import {
   Menu,
   X,
@@ -13,6 +15,7 @@ import {
   ChevronUp,
   LogOut,
   User,
+  Plus,
 } from "lucide-react";
 import Logo from "../../assets/logo/FF.jpg";
 import Avatar from "../../assets/dashboard/icons/avatar.svg";
@@ -20,13 +23,56 @@ import axios from "axios";
 
 export default function Navbar() {
   const dispatch = useDispatch();
-   const navigate = useNavigate();
+  const navigate = useNavigate();
+  const activeTab = useSelector((state) => state.organization.activeTab);
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+   const [currentOrg, setCurrentOrg] = useState(null);
+  const user = useSelector((state) => state.user);
+  const organizations = useSelector((state) => state.organizations.Organizations) || [];
+
+
+   useEffect(() => {
+    try {
+      const Backend_URL = import.meta.env.VITE_BACKEND_URL;
+      const fetchOrganizations = async () => {
+        const response = await axios.get(
+          `${Backend_URL}/api/organization/user-organizations`,
+          {
+            withCredentials: true,
+          }
+        );
+       
+        dispatch(setOrganizations(response.data.organizations));
+        if (response.data.organizations.length > 0) {
+          setCurrentOrg(response.data.organizations[0].id);
+        }
+      };
+      fetchOrganizations();
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+    }
+  }, [dispatch]);
+
+  const handleOrgChange = (e) => {
+    const selectedId = parseInt(e.target.value);
+    setCurrentOrg(selectedId);
+    console.log(
+      "Switched to organization:",
+      organizations.find((o) => o.id === selectedId)?.name
+    );
+  };
+
+  
+
+  const handleAddOrg = () => {
+   dispatch(setActiveTab("organizations"));
+  };
+
   const logoutUser = async () => {
     try {
       const Backend_URL = import.meta.env.VITE_BACKEND_URL;
-     const result = await axios.get(
+      const result = await axios.get(
         `${Backend_URL}/api/auth/signout`,
         {},
         { withCredentials: true }
@@ -51,21 +97,48 @@ export default function Navbar() {
     <nav
       className={` shadow-md fixed top-0 w-full z-50 transition-colors duration-300 bg-white`}
     >
-      <div className="container mx-auto flex justify-between items-center px-4 py-3 max-w-7xl">
+      <div className="container mx-auto flex justify-between items-center px-2 md:px-4 py-3 max-w-7xl">
         {/* Logo */}
-        <a href="/" className="flex items-center space-x-2">
-          <img
-            src={Logo}
-            alt="Flow Flex Logo"
-            className="w-8 h-8 lg:w-10 lg:h-10 rounded-full"
-          />
-          <h1 className="text-lg lg:text-xl font-bold bg-gradient-to-r from-[#012e41] to-[#38a8ae] bg-clip-text text-transparent">
-            Flow Flex
-          </h1>
-        </a>
+        <div className="flex items-center space-x-2 pr-2">
+          <a href="/" className="flex items-center space-x-2">
+            <img
+              src={Logo}
+              alt="Flow Flex Logo"
+              className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full"
+            />
+            <h1 className="hidden md:block text-lg lg:text-xl font-bold bg-gradient-to-r from-[#012e41] to-[#38a8ae] bg-clip-text text-transparent">
+              Flow Flex
+            </h1>
+          </a>
+        </div>
+
+        {/* Middle section: Organization Switcher */}
+        <div className="flex items-center ">
+          <select
+            value={currentOrg || ""}
+            onChange={handleOrgChange}
+            className="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary max-w-20 md:max-w-40 cursor-pointer"
+          >
+            {organizations.map((org) => (
+              <option key={org.id} value={org.id}>
+                {org.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Add Organization Button */}
+          <button
+            onClick={handleAddOrg}
+            className={`md:p-1 rounded-full  transition mx-2 cursor-pointer"
+            `}
+            title="Join or create organization"
+          >
+            <Plus size={26} className={`${activeTab === "organizations" ? " text-tertiary" : "text-primary"} hover:text-tertiary hover:b`} />
+          </button>
+        </div>
 
         {/* Search Bar */}
-        <div className="hidden md:flex items-center w-1/2 relative">
+        <div className="hidden md:flex items-center w-1/2 relative pr-2">
           <Search
             size={18}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -73,7 +146,7 @@ export default function Navbar() {
           <input
             type="text"
             placeholder="Search projects, tasks..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+            className="w-full pl-10 pr-2 md:pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm "
           />
         </div>
 
@@ -81,14 +154,14 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-4">
           {/* Create / Add */}
           <button
-            className="p-2 rounded-lg  text-tertiary hover:text-primary transition"
+            className="p-2 rounded-lg  text-tertiary hover:text-primary transition cursor-pointer"
             title="Create New"
           >
             <ClipboardPlus />
           </button>
 
           {/* Alerts */}
-          <div className="relative">
+          <button className="relative cursor-pointer">
             <OctagonAlert
               className="rounded-lg  text-gray-600 hover:text-red-500 cursor-pointer transition"
               title="System Alerts"
@@ -96,10 +169,10 @@ export default function Navbar() {
             <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] rounded-full px-1.5">
               2
             </span>
-          </div>
+          </button>
 
           {/* Notifications */}
-          <div className="relative">
+          <button className="relative cursor-pointer">
             <Bell
               className=" rounded-lg  text-gray-600 hover:text-yellow-500 cursor-pointer transition"
               title="Notifications"
@@ -107,19 +180,26 @@ export default function Navbar() {
             <span className="absolute top-3 right-3 bg-yellow-500 text-white text-[10px] rounded-full px-1  text-xs">
               5
             </span>
-          </div>
+          </button>
 
           {/* Profile */}
           <div className="relative">
             <button
               onClick={toggleProfile}
-              className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition"
+              className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition cursor-pointer"
             >
-              <img
-                src={Avatar}
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover border"
-              />
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover border"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm font-light font-poppins  text-white border">
+                  {user?.first_name?.[0]?.toUpperCase()}
+                  {user?.last_name?.[0]?.toUpperCase()}
+                </div>
+              )}
               {profileOpen ? (
                 <ChevronUp size={16} />
               ) : (
@@ -162,7 +242,7 @@ export default function Navbar() {
         {/* Mobile Menu Button */}
 
         <button
-          className="md:hidden text-gray-600 hover:text-primary"
+          className="md:hidden text-gray-600 hover:text-primary ml-2"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X size={26} /> : <Menu size={26} />}

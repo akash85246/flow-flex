@@ -1,5 +1,3 @@
-import logo from "../../assets/logo/FFDark.jpg";
-import { Twitter, Linkedin, Facebook, Github, Instagram } from "lucide-react";
 export default function Footer() {
   return (
     <>

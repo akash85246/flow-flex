@@ -10,6 +10,7 @@ import MainLayout from "./components/layout/Main.layout";
 import AuthLayout from "./components/layout/Auth.layout";
 import DashboardLayout from "./components/layout/Dashboard.layout";
 import ResetPassword from "./pages/auth/ResetPassword";
+import JoinOrganization from "./pages/JoinOrganization"
 
 import signinImage from "./assets/auth/illustrations/signin.svg";
 import signupImage from "./assets/auth/illustrations/signup.svg";
@@ -112,6 +113,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organization/join"
+            element={
+              <ProtectedRoute>
+                <JoinOrganization />
               </ProtectedRoute>
             }
           />
