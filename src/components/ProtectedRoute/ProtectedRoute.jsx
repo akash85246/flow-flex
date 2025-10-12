@@ -16,7 +16,6 @@ const ProtectedRoute = ({ children }) => {
           `${import.meta.env.VITE_BACKEND_URL}/api/auth/check`,
           { withCredentials: true }
         );
-        console.log("Auth check response:", res.data);
         const userData = res.data.user;
         if (userData) {
           dispatch(setUser(userData));

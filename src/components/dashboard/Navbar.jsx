@@ -1,9 +1,23 @@
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {clearUser } from "../../redux/slices/userSlice";
-import {setOrganizations, clearOrganizations} from "../../redux/slices/organizationsSlice";
-import{setActiveTab} from "../../redux/slices/organizationSlice";
+import { clearUser } from "../../redux/slices/userSlice";
+import {
+  setOrganizations,
+  clearOrganizations,
+} from "../../redux/slices/organizationsSlice";
+import {
+  clearProjects,
+  clearSelectedProject,
+} from "../../redux/slices/projectSlice";
+import { clearInvitation } from "../../redux/slices/invitationSlice";
+import {
+  setSelectedOrganization,
+  setActiveTab,
+  clearActiveTab,
+  clearSelectedOrganization,
+} from "../../redux/slices/organizationSlice";
+
 import {
   Menu,
   X,
@@ -27,12 +41,19 @@ export default function Navbar() {
   const activeTab = useSelector((state) => state.organization.activeTab);
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-   const [currentOrg, setCurrentOrg] = useState(null);
+  const [currentOrg, setCurrentOrg] = useState(null);
   const user = useSelector((state) => state.user);
-  const organizations = useSelector((state) => state.organizations.Organizations) || [];
+  const selectedOrganization = useSelector(
+    (state) => state.organization.selectedOrganization
+  );
 
+  const organizations =
+    useSelector((state) => state.organizations.Organizations) || [];
+  const avatarUrl = user.avatar?.startsWith("http")
+    ? user.avatar
+    : `${import.meta.env.VITE_BACKEND_URL}/uploads/${user.avatar}`;
 
-   useEffect(() => {
+  useEffect(() => {
     try {
       const Backend_URL = import.meta.env.VITE_BACKEND_URL;
       const fetchOrganizations = async () => {
@@ -42,8 +63,12 @@ export default function Navbar() {
             withCredentials: true,
           }
         );
-       
         dispatch(setOrganizations(response.data.organizations));
+        if (selectedOrganization === null) {
+          dispatch(
+            setSelectedOrganization(response.data.organizations[0] || null)
+          );
+        }
         if (response.data.organizations.length > 0) {
           setCurrentOrg(response.data.organizations[0].id);
         }
@@ -52,21 +77,20 @@ export default function Navbar() {
     } catch (error) {
       console.error("Error fetching organizations:", error);
     }
-  }, [dispatch]);
+  }, [dispatch, selectedOrganization]);
 
   const handleOrgChange = (e) => {
     const selectedId = parseInt(e.target.value);
     setCurrentOrg(selectedId);
-    console.log(
-      "Switched to organization:",
-      organizations.find((o) => o.id === selectedId)?.name
+
+    dispatch(
+      setSelectedOrganization(organizations.find((o) => o.id === selectedId))
     );
+    dispatch(setActiveTab("home"));
   };
 
-  
-
   const handleAddOrg = () => {
-   dispatch(setActiveTab("organizations"));
+    dispatch(setActiveTab("organizations"));
   };
 
   const logoutUser = async () => {
@@ -82,6 +106,13 @@ export default function Navbar() {
       }
 
       dispatch(clearUser());
+      dispatch(clearOrganizations());
+      dispatch(clearProjects());
+      dispatch(clearSelectedProject());
+      dispatch(clearInvitation());
+      dispatch(clearActiveTab());
+      dispatch(clearSelectedOrganization());
+
       navigate("/welcome");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -115,10 +146,13 @@ export default function Navbar() {
         {/* Middle section: Organization Switcher */}
         <div className="flex items-center ">
           <select
-            value={currentOrg || ""}
+            value={selectedOrganization ? selectedOrganization.id : ""}
             onChange={handleOrgChange}
             className="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary max-w-20 md:max-w-40 cursor-pointer"
           >
+            <option key="0" disabled>
+              Organization
+            </option>
             {organizations.map((org) => (
               <option key={org.id} value={org.id}>
                 {org.name}
@@ -133,7 +167,14 @@ export default function Navbar() {
             `}
             title="Join or create organization"
           >
-            <Plus size={26} className={`${activeTab === "organizations" ? " text-tertiary" : "text-primary"} hover:text-tertiary hover:b`} />
+            <Plus
+              size={26}
+              className={`${
+                activeTab === "organizations"
+                  ? " text-tertiary"
+                  : "text-primary"
+              } hover:text-tertiary hover:b`}
+            />
           </button>
         </div>
 
@@ -188,9 +229,9 @@ export default function Navbar() {
               onClick={toggleProfile}
               className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-2 py-1 transition cursor-pointer"
             >
-              {user?.avatar ? (
+              {avatarUrl ? (
                 <img
-                  src={user.avatar}
+                  src={avatarUrl}
                   alt="Profile"
                   className="w-8 h-8 rounded-full object-cover border"
                 />
@@ -265,11 +306,18 @@ export default function Navbar() {
               <Bell size={18} /> Notifications
             </button>
             <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition">
-              <img
-                src={Avatar}
-                alt="Profile"
-                className="w-5 h-5 rounded-full object-cover border"
-              />{" "}
+              {avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt="Profile"
+                  className="w-5 h-5 rounded-full object-cover border"
+                />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-sm font-light font-poppins  text-white border">
+                  {user?.first_name?.[0]?.toUpperCase()}
+                  {user?.last_name?.[0]?.toUpperCase()}
+                </div>
+              )}
               Profile
             </button>
 
