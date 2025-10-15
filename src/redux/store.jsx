@@ -13,7 +13,7 @@ import projectsReducer from "./slices/projectSlice";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user", "organization", "organizations"],
+  whitelist: ["user", "organizations"],
 };
 
 // combine reducers

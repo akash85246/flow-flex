@@ -1,5 +1,5 @@
 import { Plus, Search, Filter, Users, BarChart3, MailPlus } from "lucide-react";
-import CreateOrganizationModal from "./CreateOrganizationModal";
+import CreateOrganizationModal from "../../utils/organization/CreateOrganizationModal";
 import InvitesDropDown from "../../utils/organization/InvitesDropDown";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";

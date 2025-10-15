@@ -177,40 +177,41 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-fourth/40 backdrop-blur-sm flex items-center justify-center z-50"
+           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white w-full max-w-7xl rounded-2xl shadow-xl relative overflow-y-auto "
+           className="bg-white w-[95%] md:w-[90%] lg:w-[85%] max-w-8xl rounded-2xl shadow-2xl relative overflow-hidden flex flex-col"
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ duration: 0.25 }}
           >
             {/* Header */}
-            <div className="flex justify-between items-center mb-4 border-b border-secondary px-4 py-2">
-              <h2 className="text-xl font-semibold text-gray-800">
+            <div className="flex justify-between items-center px-5 py-3 border-b border-gray-200 bg-gray-50 shrink-0">
+              <h2 className="text-base md:text-lg font-semibold text-gray-800">
                 Create New Organization
               </h2>
-              <button onClick={onClose}>
-                <X className="text-gray-500 hover:text-gray-800" />
+              <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 transition">
+                <X cclassName="text-gray-500 hover:text-gray-700" size={18} />
               </button>
             </div>
 
-            {/* Form */}
+            
             <form
               onSubmit={handleSubmit}
-              className="space-y-0 grid grid-cols-1 md:grid-cols-3 gap-2 p-2"
+              className=" p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 flex-grow"
             >
-              <div className="col-span-2 space-y-4 p-2 ">
+             {/* Left Section */}
+               <div className="col-span-2 space-y-5">
                 {/* Organization Identity */}
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                   <h3 className="text-base font-semibold text-gray-800 mb-2">
                     Organization Identity
-                  </h2>
-                  <p className="text-sm text-gray-500 mb-4">
+                  </h3>
+                   <p className="text-sm text-gray-500 mb-3">
                     Provide the core details of your organization.
                   </p>
 
@@ -273,9 +274,9 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
                   </div>
 
                   {/* Description */}
-                  <div className="mb-4 mt-4">
+                  <div className="mt-4">
                     <label
-                      className="block text-sm font-medium mb-1"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                       htmlFor="description"
                     >
                       Description
@@ -286,18 +287,18 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
                       rows={3}
                       value={formData.description}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none resize-none"
                       placeholder="Describe your organization..."
                     />
                   </div>
 
                   {/* Inputs: Website, Region, Industry, Timezone */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 my-2">
                     {["website", "region", "industry", "timezone"].map(
                       (field) => (
                         <div key={field}>
                           <label
-                            className="block text-sm font-medium mb-1"
+                             className="block text-sm font-medium text-gray-700 mb-1"
                             htmlFor={field}
                           >
                             {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -324,13 +325,10 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
                         </div>
                       )
                     )}
-                  </div>
-
-                  {/* Type Select */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                  
                     <div>
                       <label
-                        className="block text-sm font-medium mb-1"
+                        className="block text-sm font-medium text-gray-700 mb-1"
                         htmlFor="type"
                       >
                         Organization Type
@@ -349,7 +347,7 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
                     </div>
                     <div>
                       <label
-                        className="block text-sm font-medium mb-1"
+                        className="block text-sm font-medium text-gray-700 mb-1"
                         htmlFor="type"
                       >
                         Default Role
@@ -386,18 +384,18 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
                 </div>
               </div>
 
-              {/* Permissions & Features */}
-              <div className="col-span-1 bg-white p-2 rounded-xl shadow-sm border border-gray-200 space-y-4">
-                <h2 className="text-base md:text-lg font-semibold mb-2">
+              {/* Right Section */}
+              <aside className="col-span-1 bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200 shadow-sm self-start">
+               <h3 className="text-sm md:text-base font-semibold mb-2">
                   Permissions & Features
-                </h2>
-                <p className="text-xs md:text-sm text-gray-500 mb-4">
+                </h3>
+              <p className="text-xs text-gray-500 mb-3">
                   Configure the organization's visibility and feature access.
                 </p>
 
                 {/* Visibility */}
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Visibility
                   </label>
                   <select
@@ -412,19 +410,19 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
                 </div>
 
                 {/* Feature Toggles */}
-                <div className="grid grid-cols-1 gap-2">
+                <div className="flex flex-col gap-2.5">
                   {features.map((feature) => (
                     <div
                       key={feature.key}
-                      className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:shadow-sm transition"
+                       className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition"
                     >
-                      <div className="flex items-center gap-3">
+                     <div className="flex items-start gap-3">
                         <div className="p-2 bg-primary/10 rounded-full">
                           {feature.icon}
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{feature.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-sm font-medium text-gray-800">{feature.name}</p>
+                          <p className="text-[0.7rem] text-gray-500">
                             {feature.description}
                           </p>
                         </div>
@@ -434,25 +432,25 @@ export default function CreateOrganizationModal({ isOpen, onClose }) {
                         name={feature.key}
                         checked={formData[feature.key]}
                         onChange={handleChange}
-                        className="h-5 w-5 text-primary"
+                        className="h-4 w-4 accent-primary ml-2"
                       />
                     </div>
                   ))}
                 </div>
-              </div>
+              </aside>
 
               {/* Footer */}
-              <div className="flex justify-end gap-2 col-span-3">
+               <div className="flex justify-end gap-3 col-span-3 border-t border-gray-200 pt-3 mt-4 sticky bottom-0 bg-white">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-100 focus:outline-none"
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-gray-300 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-primary text-white text-sm hover:bg-tertiary transition focus:outline-none"
+                 className="px-5 py-2 rounded-lg bg-primary text-white text-sm hover:bg-primary/90 shadow-sm transition"
                 >
                   Create Organization
                 </button>

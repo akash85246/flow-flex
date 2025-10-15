@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  Projects: null,
-  SelectedProject: null,
+  projects: [], // use empty array instead of null for easier operations
+  selectedProject: null,
 };
 
 const projectsSlice = createSlice({
@@ -10,16 +10,24 @@ const projectsSlice = createSlice({
   initialState,
   reducers: {
     setProjects: (state, action) => {
-      state.Projects = action.payload;
+      state.projects = action.payload;
     },
     clearProjects: (state) => {
-      state.Projects = null;
+      state.projects = [];
+    },
+    addProject: (state, action) => {
+      state.projects.push(action.payload);
+    },
+    removeProject: (state, action) => {
+      state.projects = state.projects.filter(
+        (project) => project.id !== action.payload
+      );
     },
     setSelectedProject: (state, action) => {
-      state.SelectedProject = action.payload;
+      state.selectedProject = action.payload;
     },
     clearSelectedProject: (state) => {
-      state.SelectedProject = null;
+      state.selectedProject = null;
     },
   },
 });
@@ -27,6 +35,8 @@ const projectsSlice = createSlice({
 export const {
   setProjects,
   clearProjects,
+  addProject,
+  removeProject,
   setSelectedProject,
   clearSelectedProject,
 } = projectsSlice.actions;

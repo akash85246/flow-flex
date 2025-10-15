@@ -51,7 +51,7 @@ export default function Navbar() {
     useSelector((state) => state.organizations.Organizations) || [];
   const avatarUrl = user.avatar?.startsWith("http")
     ? user.avatar
-    : `${import.meta.env.VITE_BACKEND_URL}/uploads/${user.avatar}`;
+    : `${import.meta.env.VITE_BACKEND_URL}/${user.avatar}`;
 
   useEffect(() => {
     try {

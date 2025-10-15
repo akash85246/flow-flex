@@ -2,24 +2,35 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   SquarePen,
   Search,
-  MailPlus,
+  Trash2,
   Plus,
+  Image,
+  Clock,
+  FolderKanban,
+  Users,
+  BarChart3,
   Copy,
   CopyCheck,
   ChevronDown,
   ChevronUp,
   UserRoundMinus,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import CreateNewProject from "../../utils/organization/CreateNewProjectModal";
+import { removeProject,setProjects } from "../../redux/slices/projectSlice";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 export default function Home() {
   const dispatch = useDispatch();
+   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchMemberTerm, setSearchMemberTerm] = useState("");
   const [memberRole, setMemberRole] = useState("all");
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
+    useState(false);
   const [sort, setSort] = useState("all");
   const [sortMembers, setSortMembers] = useState("all");
   const [showInvites, setShowInvites] = useState(false);
@@ -31,7 +42,7 @@ export default function Home() {
   const [showRequests, setShowRequests] = useState(false);
   const [showInvitesDropdown, setShowInvitesDropdown] = useState(false);
   const [showActivities, setShowActivities] = useState(false);
-  const projects = useSelector((state) => state.projects.Projects) || [];
+  const projects = useSelector((state) => state.projects.projects) || [];
   const [invitations, setInvitations] = useState([]);
   const [members, setMembers] = useState([]);
 
@@ -50,6 +61,9 @@ export default function Home() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
 
+  const openCreateProjectModal = () => setIsCreateProjectModalOpen(true);
+  const closeCreateProjectModal = () => setIsCreateProjectModalOpen(false);
+
   // Get organization members
   useEffect(() => {
     try {
@@ -65,6 +79,24 @@ export default function Home() {
         );
 
         setMembers(response.data.members);
+      };
+      fetchRequests();
+    } catch (error) {
+      console.error("Error fetching requests data:", error);
+    }
+  }, [dispatch, organization, Backend_URL]);
+
+  // Get organization projects
+  useEffect(() => {
+    try {
+      const fetchRequests = async () => {
+        const response = await axios.get(`${Backend_URL}/api/project`, {
+          params: {
+            org_id: organization?.id,
+          },
+          withCredentials: true,
+        });
+        dispatch(setProjects(response.data.projects));
       };
       fetchRequests();
     } catch (error) {
@@ -136,7 +168,7 @@ export default function Home() {
         }
       );
     } catch (error) {
-      console.error("❌ Logo upload failed:", error);
+      console.error("Logo upload failed:", error);
       alert("Logo upload failed. Try again.");
     } finally {
       setIsUploadingLogo(false);
@@ -171,6 +203,7 @@ export default function Home() {
       setIsUploadingBanner(false);
     }
   };
+
   //remove member
   const handleRemoveMember = async (memberId) => {
     try {
@@ -185,11 +218,11 @@ export default function Home() {
         }
       );
 
-      if(response.status === 200){
-      setMembers((prevMembers) =>
-        prevMembers.filter((member) => member.id !== memberId)
-      );}
-      console.log(response.data);
+      if (response.status === 200) {
+        setMembers((prevMembers) =>
+          prevMembers.filter((member) => member.id !== memberId)
+        );
+      }
     } catch (error) {
       console.error("Error removing member:", error.response?.data || error);
     }
@@ -265,14 +298,36 @@ export default function Home() {
     }
   };
 
+const handleDeleteProject = async (projectId) => {
+  try {
+    const response = await axios.delete(
+      `${Backend_URL}/api/project/delete`, 
+      {
+        data: { project_id: projectId },
+        withCredentials: true,
+      }
+    );
+    if (response.status === 200) {
+      dispatch(removeProject(projectId));
+    }
+  } catch (error) {
+    console.error("Error deleting project:", error);
+  }
+};
+
+const onView = (projectId) => {
+  navigate(`/project/${projectId}`);
+}
+
+
   //   Project filtering logic
   let filteredProjects = [...projects];
 
   // Search by name
   if (searchTerm.trim()) {
     const term = searchTerm.toLowerCase();
-    filteredProjects = filteredProjects.filter((org) =>
-      org.name?.toLowerCase().includes(term)
+    filteredProjects = filteredProjects.filter((project) =>
+      project.name?.toLowerCase().includes(term)
     );
   }
 
@@ -290,6 +345,8 @@ export default function Home() {
       (a, b) => new Date(a.created_at) - new Date(b.created_at)
     );
   }
+
+  //   Member filtering logic
   let filteredMembers = [...members];
 
   // Filter by role
@@ -365,7 +422,7 @@ export default function Home() {
 
               <div className="absolute bottom-3 left-48   flex flex-col">
                 <h1 className="text-xl font-semibold drop-shadow-md">
-                  {organization.name}
+                  {organization?.name}
                 </h1>
                 {organization?.website && (
                   <a
@@ -457,22 +514,69 @@ export default function Home() {
 
             {/* projects */}
             <div className="space-y-3">
-              {projects.length > 0 ? (
-                projects.map((org) => (
+              {filteredProjects.length > 0 ? (
+                filteredProjects.map((project) => (
                   <div
-                    key={org.id}
-                    className="flex items-center justify-between border border-gray-100 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                    key={project.id}
+                    className="flex items-center justify-between border border-gray-100 bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+                   
                   >
-                    <div>
-                      <h3 className="font-medium text-gray-800">{org.name}</h3>
-                      <p className="text-xs text-gray-500">
-                        Role: {org.role} • {org.members_count} members •{" "}
-                        {org.projects_count} projects
-                      </p>
+                    {/* Left section */}
+                    <div className="flex items-center gap-4" onClick={()=>onView(project.id)}>
+                      {/* Project Banner */}
+                      {project.banner_url ? (
+                        <img
+                          src={`${import.meta.env.VITE_BACKEND_URL}${project.banner_url}`}
+                          alt={project.name}
+                          className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-gray-50 flex items-center justify-center border border-gray-200">
+                          <Image className="text-gray-400 w-6 h-6" />
+                        </div>
+                      )}
+
+                      {/* Project Info */}
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {project.name}
+                        </h3>
+                        <p className="text-sm text-gray-500 line-clamp-2 max-w-xs">
+                          {project.description || "No description available."}
+                        </p>
+
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-4 h-4 text-gray-400" />
+                            {new Date(project.created_at).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <FolderKanban className="w-4 h-4 text-gray-400" />
+                            {project.total_boards ?? 0} Boards
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Users className="w-4 h-4 text-gray-400" />
+                            {project.total_members ?? 0} Members
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <BarChart3 className="w-4 h-4 text-gray-400" />
+                            {project.progress ?? 0}%
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <button className="text-[#38a8ae] text-sm font-medium hover:underline">
-                      View
-                    </button>
+
+                    {/* Right section - Actions */}
+                    <div className="flex items-center gap-3">
+                      
+
+                      <button
+                        onClick={()=>handleDeleteProject(project.id) }
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -620,8 +724,8 @@ export default function Home() {
         {/* button section */}
         <div className="flex justify-end gap-3 relative">
           <button
-            onClick={() => setShowModal(true)}
             className="bg-[#38a8ae] text-white px-4 py-2 rounded-lg hover:bg-[#2c8b90] transition text-sm flex items-center gap-2"
+            onClick={openCreateProjectModal}
           >
             <Plus size={18} />
             New Project
@@ -986,6 +1090,10 @@ export default function Home() {
           </AnimatePresence>
         </div>
       </div>
+      <CreateNewProject
+        isOpen={isCreateProjectModalOpen}
+        onClose={closeCreateProjectModal}
+      />
     </section>
   );
 }
