@@ -8,6 +8,7 @@ import organizationReducer from "./slices/organizationSlice";
 import organizationsReducer from "./slices/organizationsSlice";
 import invitationReducer from "./slices/invitationSlice";
 import projectsReducer from "./slices/projectSlice";
+import boardsReducer from "./slices/BoardsSlice";
 
 // configure persistence
 const persistConfig = {
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   organizations: organizationsReducer,
   invitation: invitationReducer,
   projects: projectsReducer,
+  boards: boardsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

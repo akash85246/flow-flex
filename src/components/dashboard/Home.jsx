@@ -315,8 +315,8 @@ const handleDeleteProject = async (projectId) => {
   }
 };
 
-const onView = (projectId) => {
-  navigate(`/project/${projectId}`);
+const onView = (slug) => {
+  navigate(`/project/${slug}`);
 }
 
 
@@ -522,7 +522,7 @@ const onView = (projectId) => {
                    
                   >
                     {/* Left section */}
-                    <div className="flex items-center gap-4" onClick={()=>onView(project.id)}>
+                    <div className="flex items-center gap-4" onClick={()=>onView(project.slug)}>
                       {/* Project Banner */}
                       {project.banner_url ? (
                         <img

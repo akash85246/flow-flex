@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../../redux/slices/userSlice";
 import {
@@ -38,6 +38,7 @@ import axios from "axios";
 export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const activeTab = useSelector((state) => state.organization.activeTab);
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -87,10 +88,14 @@ export default function Navbar() {
       setSelectedOrganization(organizations.find((o) => o.id === selectedId))
     );
     dispatch(setActiveTab("home"));
+    console.log("Location:", location.pathname);
   };
 
   const handleAddOrg = () => {
     dispatch(setActiveTab("organizations"));
+    if (!location.pathname.includes("/dashboard")) {
+      navigate(`/dashboard`);
+    }
   };
 
   const logoutUser = async () => {
@@ -148,6 +153,11 @@ export default function Navbar() {
           <select
             value={selectedOrganization ? selectedOrganization.id : ""}
             onChange={handleOrgChange}
+            onClick={() => {
+              if (!location.pathname.includes("/dashboard")) {
+                navigate(`/dashboard`);
+              }
+            }}
             className="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary max-w-20 md:max-w-40 cursor-pointer"
           >
             <option key="0" disabled>

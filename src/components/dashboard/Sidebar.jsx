@@ -4,6 +4,7 @@ import {
   Trello,
   FolderKanban,
   Users,
+  UserRound,
   Settings,
   CreditCard,
   ChevronDown,
@@ -30,13 +31,13 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const activeTab = useSelector((state) => state.organization.activeTab);
-  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const handleItemClick = (tab) => {
     dispatch(setActiveTab(tab));
   };
-  
+
   const logoutUser = async () => {
     try {
       const Backend_URL = import.meta.env.VITE_BACKEND_URL;
@@ -90,72 +91,6 @@ export default function Sidebar() {
             onClick={() => handleItemClick("home")}
           />
 
-          <SidebarItem
-            icon={<Trello size={18} />}
-            label="Boards"
-            active={activeTab === "boards"}
-            collapsed={isCollapsed}
-            onClick={() => handleItemClick("boards")}
-          />
-
-          {/* Templates Dropdown */}
-          <li>
-            <button
-              onClick={() =>
-                isCollapsed
-                  ? handleItemClick("templates")
-                  : setIsTemplatesOpen(!isTemplatesOpen)
-              }
-              onDoubleClick={() => handleItemClick("templates")}
-              className={`w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-100 transition${
-                activeTab === "templates"
-                  ? "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary font-medium"
-                  : "hover:bg-gray-100"
-              } ${isCollapsed ? "justify-center" : ""}`}
-            >
-              <div className="flex items-center gap-2">
-                <FolderKanban size={18} />
-                {!isCollapsed && <span>Templates</span>}
-              </div>
-              {!isCollapsed &&
-                (isTemplatesOpen ? (
-                  <ChevronUp size={16} />
-                ) : (
-                  <ChevronDown size={16} />
-                ))}
-            </button>
-            {isTemplatesOpen && !isCollapsed && (
-              <ul className="ml-8 mt-1 space-y-1 text-gray-600 text-sm">
-                <li
-                  className="hover:text-primary cursor-pointer transition"
-                  onClick={() => handleItemClick("agile")}
-                >
-                  Agile Board
-                </li>
-                <li
-                  className="hover:text-primary cursor-pointer transition"
-                  onClick={() => handleItemClick("kanban")}
-                >
-                  Kanban
-                </li>
-                <li
-                  className="hover:text-primary cursor-pointer transition"
-                  onClick={() => handleItemClick("sprint")}
-                >
-                  Sprint Tracker
-                </li>
-                <li
-                  className="hover:text-primary cursor-pointer transition"
-                  onClick={() => handleItemClick("roadmap")}
-                >
-                  Product Roadmap
-                </li>
-              </ul>
-            )}
-          </li>
-
-          <hr className="my-3 border-gray-300" />
-
           {/* Management Section */}
           <SidebarItem
             icon={<BarChart3 size={18} />}
@@ -179,11 +114,18 @@ export default function Sidebar() {
             onClick={() => handleItemClick("messages")}
           />
           <SidebarItem
-            icon={<Users size={18} />}
+            icon={<UserRound size={18} />}
             label="Members"
             active={activeTab === "members"}
             collapsed={isCollapsed}
             onClick={() => handleItemClick("members")}
+          />
+          <SidebarItem
+            icon={<Users  size={18} />}
+            label="Teams"
+            active={activeTab === "members"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("teams")}
           />
 
           <hr className="my-3 border-gray-300" />

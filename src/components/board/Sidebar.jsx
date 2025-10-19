@@ -1,0 +1,257 @@
+import { useState } from "react";
+import {
+  Trello,
+  Users,
+  Blocks,
+  Settings,
+  CreditCard,
+  Plus,
+  LogOut,
+  HelpCircle,
+  BarChart3,
+  CalendarDays,
+  MessageSquare,
+  Workflow,
+  FolderKanban,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser, clearUser } from "../../redux/slices/userSlice";
+import {
+  setActiveTab,
+  clearActiveTab,
+} from "../../redux/slices/organizationSlice";
+import logo from "../../assets/logo/FF.jpg";
+import axios from "axios";
+
+export default function Sidebar() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const activeTab = useSelector((state) => state.organization.activeTab);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const handleItemClick = (tab) => {
+    dispatch(setActiveTab(tab));
+  };
+
+  const logoutUser = async () => {
+    try {
+      const Backend_URL = import.meta.env.VITE_BACKEND_URL;
+      const result = await axios.get(
+        `${Backend_URL}/api/auth/signout`,
+        {},
+        { withCredentials: true }
+      );
+      if (result.status === 200) {
+        dispatch(clearUser());
+        navigate("/welcome");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Logout failed. Please try again.");
+      return;
+    }
+    alert("Logged out");
+  };
+
+  const handleDoubleClick = () => setIsCollapsed((prev) => !prev);
+
+  return (
+    <aside
+      onDoubleClick={handleDoubleClick}
+      className={`${
+        isCollapsed ? "w-20" : "w-64"
+      } bg-white h-screen overflow-y-auto border-r border-gray-200 shadow-sm flex flex-col justify-between fixed left-0 top-0 z-10 transition-all duration-300`}
+    >
+      {/* Top Section */}
+      <div className="p-4">
+        {/* Brand */}
+        <div
+          className="flex items-center justify-between mb-6 cursor-pointer"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          <img
+            src={logo}
+            alt="Flow Flex Logo"
+            className="w-10 h-10 rounded-full"
+          />
+        </div>
+
+        {/* Main Menu */}
+        <ul className="space-y-2 text-gray-700 text-sm">
+          <SidebarItem
+            icon={<Trello size={18} />}
+            label="Board"
+            active={activeTab === "home"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("home")}
+          />
+          {/* Templates Dropdown */}
+          <li>
+            <button
+              onClick={() =>
+                isCollapsed
+                  ? handleItemClick("templates")
+                  : setIsTemplatesOpen(!isTemplatesOpen)
+              }
+              onDoubleClick={() => handleItemClick("templates")}
+              className={`w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-100 transition${
+                activeTab === "templates"
+                  ? "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary font-medium"
+                  : "hover:bg-gray-100"
+              } ${isCollapsed ? "justify-center" : ""}`}
+            >
+              <div className="flex items-center gap-2">
+                <FolderKanban size={18} />
+                {!isCollapsed && <span>Templates</span>}
+              </div>
+              {!isCollapsed &&
+                (isTemplatesOpen ? (
+                  <ChevronUp size={16} />
+                ) : (
+                  <ChevronDown size={16} />
+                ))}
+            </button>
+            {isTemplatesOpen && !isCollapsed && (
+              <ul className="ml-8 mt-1 space-y-1 text-gray-600 text-sm">
+                <li
+                  className="hover:text-primary cursor-pointer transition"
+                  onClick={() => handleItemClick("agile")}
+                >
+                  Agile Board
+                </li>
+                <li
+                  className="hover:text-primary cursor-pointer transition"
+                  onClick={() => handleItemClick("kanban")}
+                >
+                  Kanban
+                </li>
+                <li
+                  className="hover:text-primary cursor-pointer transition"
+                  onClick={() => handleItemClick("sprint")}
+                >
+                  Sprint Tracker
+                </li>
+                <li
+                  className="hover:text-primary cursor-pointer transition"
+                  onClick={() => handleItemClick("roadmap")}
+                >
+                  Product Roadmap
+                </li>
+              </ul>
+            )}
+          </li>
+          <SidebarItem
+            icon={<Plus size={18} />}
+            label="New Board"
+            active={activeTab === "newBoard"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("newBoard")}
+          />
+
+          <SidebarItem
+            icon={<Users size={18} />}
+            label="Members & Roles"
+            active={activeTab === "members"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("members")}
+          />
+
+          <hr className="my-3 border-gray-300" />
+          {/* Management Section */}
+          <SidebarItem
+            icon={<BarChart3 size={18} />}
+            label="Analytics"
+            active={activeTab === "analytics"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("analytics")}
+          />
+
+          <SidebarItem
+            icon={<Blocks size={18} />}
+            label="Add-Ons"
+            active={activeTab === "addons"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("addons")}
+          />
+          <SidebarItem
+            icon={<Workflow size={18} />}
+            label="Automations"
+            active={activeTab === "autonomations"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("autonomations")}
+          />
+          <SidebarItem
+            icon={<CalendarDays size={18} />}
+            label="Calendar"
+            active={activeTab === "calendar"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("calendar")}
+          />
+          <SidebarItem
+            icon={<MessageSquare size={18} />}
+            label="Messages"
+            active={activeTab === "messages"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("messages")}
+          />
+
+          <hr className="my-3 border-gray-300" />
+
+          {/* Settings Section */}
+          <SidebarItem
+            icon={<Settings size={18} />}
+            label="Settings"
+            active={activeTab === "settings"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("settings")}
+          />
+          <SidebarItem
+            icon={<CreditCard size={18} />}
+            label="Billing"
+            active={activeTab === "billing"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("billing")}
+          />
+          <SidebarItem
+            icon={<HelpCircle size={18} />}
+            label="Help & Support"
+            active={activeTab === "help"}
+            collapsed={isCollapsed}
+            onClick={() => handleItemClick("help")}
+          />
+        </ul>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="p-4 border-t border-gray-200">
+        <button
+          className="flex items-center justify-center gap-2 text-gray-600 hover:text-red-500 w-full transition"
+          onClick={() => logoutUser()}
+        >
+          <LogOut size={18} />
+          {!isCollapsed && <span>Logout</span>}
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+function SidebarItem({ icon, label, active, collapsed, onClick }) {
+  return (
+    <li
+      onClick={onClick}
+      className={`flex items-center gap-3 py-2 px-3 rounded-lg cursor-pointer transition ${
+        active
+          ? "bg-gradient-to-r from-primary/10 to-secondary/10 text-primary font-medium"
+          : "hover:bg-gray-100"
+      } ${collapsed ? "justify-center" : ""}`}
+    >
+      {icon}
+      {!collapsed && <span>{label}</span>}
+    </li>
+  );
+}

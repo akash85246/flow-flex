@@ -9,8 +9,10 @@ import AuthRoute from "./components/ProtectedRoute/AuthRoute";
 import MainLayout from "./components/layout/Main.layout";
 import AuthLayout from "./components/layout/Auth.layout";
 import DashboardLayout from "./components/layout/Dashboard.layout";
+import BoardLayout from "./components/layout/Board.layout";
 import ResetPassword from "./pages/auth/ResetPassword";
-import JoinOrganization from "./pages/JoinOrganization"
+import JoinOrganization from "./pages/JoinOrganization";
+import Project from "./pages/Project";
 
 import signinImage from "./assets/auth/illustrations/signin.svg";
 import signupImage from "./assets/auth/illustrations/signup.svg";
@@ -69,7 +71,7 @@ function App() {
           element={
             <AuthLayout
               image={verificationImage}
-               title="Reset Your Password"
+              title="Reset Your Password"
               description="Secure your account by following the steps to reset your password and continue your journey with Flow Flex."
             />
           }
@@ -84,30 +86,8 @@ function App() {
           />
         </Route>
 
-        {/* Main layout routes */}
-        <Route element={<MainLayout />}>
-          <Route
-            path="welcome"
-            element={
-              <AuthRoute>
-                <Welcome />
-              </AuthRoute>
-            }
-          />
-      
-          <Route
-            path="board/:boardId"
-            element={
-              <ProtectedRoute>
-                <Board />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-
         {/*Dash Board layout routes */}
         <Route element={<DashboardLayout />}>
-          
           <Route
             path="dashboard"
             element={
@@ -117,6 +97,15 @@ function App() {
             }
           />
           <Route
+            path="project/:slug"
+            element={
+              <ProtectedRoute>
+                <Project />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/organization/join"
             element={
               <ProtectedRoute>
@@ -124,16 +113,20 @@ function App() {
               </ProtectedRoute>
             }
           />
-       
+
+          <Route path="*" element={<Dashboard />} />
+        </Route>
+
+        {/*Board layout routes */}
+        <Route element={<BoardLayout />}>
           <Route
-            path="board/:boardId"
+            path="board/:slug"
             element={
               <ProtectedRoute>
                 <Board />
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Dashboard />} />
         </Route>
       </Routes>
     </Router>
