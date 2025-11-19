@@ -36,6 +36,7 @@ export default function Sidebar() {
 
   const handleItemClick = (tab) => {
     dispatch(setActiveTab(tab));
+    dispatch(setActiveTab(tab));
   };
 
   const logoutUser = async () => {
@@ -49,6 +50,7 @@ export default function Sidebar() {
       if (result.status === 200) {
         dispatch(clearUser());
         navigate("/welcome");
+     
       }
     } catch (error) {
       console.error("Logout failed:", error);
